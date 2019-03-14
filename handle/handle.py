@@ -10,14 +10,22 @@ import time
 import win32clipboard
 
 
+class InvalidHandleError(Exception):
+    def __init__(self, *args):
+        super().__init__(*args)
+
+
 class Handle(object):
     def __init__(self, handle_class_name, handle_title):
         self.handle = win32gui.FindWindow(handle_class_name, handle_title)
+        if self.handle == 0:
+            raise InvalidHandleError('无效的窗口句柄。')
         self.left, self.top, self.width, self.height = self.get_handle_rect()
 
     def get_handle_rect(self):
         """获取句柄矩形"""
-        return win32gui.GetWindowPlacement(self.handle)[-1]
+        places = win32gui.GetWindowPlacement(self.handle)
+        return places[-1]
 
     def reset_handle_rect(self, *rect):
         """rect must has four params,
@@ -25,7 +33,7 @@ class Handle(object):
         if param is None or lt zero, it will not change
         """
         for r_ in rect:
-            if not isinstance(r_, int) or r_ is not None:
+            if not (isinstance(r_, int)) ^ (r_ is None):
                 raise ValueError("reset_rect() params must be int or None")
         if len(rect) != 4:
             raise TypeError("reset_rect() takes exactly 4 arguments (%s given)" % len(rect))
