@@ -2,7 +2,7 @@
 # !/usr/bin/python3
 # @Time   : 2019/3/13 17:17
 # @File   : wechat_handle.py
-from handle.handle import Handle
+from handle import Handle
 
 
 class WeChatMainWndForPCHandle(Handle):
@@ -19,4 +19,5 @@ class WeChatMainWndForPCHandle(Handle):
 if __name__ == '__main__':
     print(TypeError("reset_rect() takes exactly 4 arguments (%s given)" % len('we')))
     wx = WeChatMainWndForPCHandle()
-    wx.get_handle_rect()
+    rect = wx.get_handle_rect()
+    print(rect)
