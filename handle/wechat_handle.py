@@ -33,6 +33,13 @@ class WeChatMainWndForPCLoginHandle(Handle):
     def login(self):
         """登陆"""
         self.mouse_left_click_position(140, 280)
+        self.check_login()
+
+    def check_login(self):
+        """登录验证"""
+        while 1:
+            if not self.check_handle(self.class_name, self.class_title):
+                break
 
 
 class WeChatMainWndForPCHandle(Handle):
@@ -72,12 +79,12 @@ class WeChatMainWndForPCHandle(Handle):
 
 
 if __name__ == '__main__':
-    # wx = WeChatMainWndForPCLoginHandle()
-    # wx.login()
-    wx = WeChatMainWndForPCHandle()
-    rect = wx.get_handle_rect()
-    print(rect)
+    wx = WeChatMainWndForPCLoginHandle()
+    wx.login()
+    # wx = WeChatMainWndForPCHandle()
+    # rect = wx.get_handle_rect()
+    # print(rect)
     # wx.hidden_handle()
     # wx.show_handle()
-    wx.message_list_move2top()
+    # wx.message_list_move2top()
     # wx.message_list_move2bottom()

@@ -22,6 +22,10 @@ class Handle(object):
             raise InvalidHandleError('无效的窗口句柄。')
         self.left, self.top, self.width, self.height = self.get_handle_rect()
 
+    def check_handle(self, handle_class_name, handle_title):
+        """验证句柄"""
+        return win32gui.FindWindow(handle_class_name, handle_title) != 0
+
     def get_handle_rect(self):
         """获取句柄矩形"""
         # abs_position = win32gui.GetWindowRect(self.handle)[:2]
