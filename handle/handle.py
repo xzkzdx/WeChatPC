@@ -5,9 +5,13 @@
 
 import win32gui
 import win32api
+import win32ui
+
 import win32con
 import time
 import win32clipboard
+from win32api import GetSystemMetrics
+from PIL import ImageGrab, Image
 
 
 class InvalidHandleError(Exception):
@@ -25,6 +29,46 @@ class Handle(object):
     def check_handle(self, handle_class_name, handle_title):
         """验证句柄"""
         return win32gui.FindWindow(handle_class_name, handle_title) != 0
+
+    def create_handle_dc(self):
+        """根据窗口句柄获取窗口的设备上下文DC（Divice Context）"""
+        return win32gui.GetWindowDC(self.handle)
+
+    def create_handle_mfc_dc(self, dc=None):
+        """根据窗口上下文创建dc"""
+        return win32ui.CreateDCFromHandle(dc if dc else self.create_handle_dc())
+
+    def handle_compatible_dc(self, dc=None, mfc_dc=None):
+        """根据mfcDC创建可兼容的DC"""
+        dc = dc if dc else self.create_handle_dc()
+        mfc_dc = mfc_dc if mfc_dc else self.create_handle_mfc_dc(dc)
+        return mfc_dc.CreateCompatibleDC()
+
+    def handle_full_image(self, dc=None, mfc_dc=None, compatible_dc=None, image_file_name=''):
+        """句柄截图"""
+        dc = dc if dc else self.create_handle_dc()
+        mfc_dc = mfc_dc if mfc_dc else self.create_handle_mfc_dc(dc=dc)
+        compatible_dc = compatible_dc if compatible_dc else self.handle_compatible_dc(dc=dc, mfc_dc=mfc_dc)
+        save_bit_map = win32ui.CreateBitmap()  # 创建bigmap准备保存图片
+        # 句柄全大小
+        full_screen_width, full_screen_height = int(self.width * 1.5), int(self.height * 1.5)
+        full_size = (full_screen_width, full_screen_height)
+        # 为bitmap开辟空间
+        save_bit_map.CreateCompatibleBitmap(mfc_dc, full_screen_width, full_screen_height)
+        # 高度saveDC，将截图保存到saveBitmap中
+        compatible_dc.SelectObject(save_bit_map)
+        compatible_dc.BitBlt((0,0), full_size, mfc_dc, (0,0), win32con.SRCCOPY)
+        # compatible_dc.BitBlt((0, 0), (self.width*2, self.height*2), mfc_dc, (71, 121), win32con.SRCCOPY)
+        # 目标矩形顶点(0,0)长宽(w,h),源设备mfcDC,源矩形顶点tmptl
+        rtns = save_bit_map.GetBitmapBits()
+        if image_file_name:
+            save_bit_map.SaveBitmapFile(compatible_dc, image_file_name)
+        return rtns
+
+    @property
+    def handler(self):
+        """获取句柄"""
+        return self.handle
 
     def get_handle_rect(self):
         """获取句柄矩形"""
@@ -164,7 +208,16 @@ class Handle(object):
         self.set_mouse_position(x_position, y_position)
         win32api.mouse_event(win32con.MOUSEEVENTF_WHEEL, 0, 0, -1)
 
-    # def get_position_color(self, x_position, y_position):
-    #     win32api.GetHandleInformation(self.handle)
-    #     color = win32api.GetSysColor(self.handle, x_position, y_position)
-    #     return color
+    def get_screen_resolution(self):
+        return GetSystemMetrics(0), GetSystemMetrics(1)
+
+    def get_position_color(self, x_position, y_position):
+        s_width, s_height = self.get_screen_resolution()  # Python获取屏幕分辨率
+        # im = ImageGrab.grab((0, 0, s_height, s_height))  # 与坐标不同，这里0，0，1，1是一个像素，而坐标是从0~1919的
+        # pix = im.load()
+        # return pix[x_position, y_position]
+        return ImageGrab.grab((0, 0, s_width, s_height)).load()[x_position, y_position]
+
+
+if __name__ == '__main__':
+    print(ImageGrab.grab((0, 0, GetSystemMetrics(0), GetSystemMetrics(1))).load()[1, 0])
