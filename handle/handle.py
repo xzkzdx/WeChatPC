@@ -12,6 +12,7 @@ import time
 import win32clipboard
 from win32api import GetSystemMetrics
 from PIL import ImageGrab
+from settings import HANDLE_PIXEL_RATIO
 
 
 class InvalidHandleError(Exception):
@@ -23,8 +24,11 @@ class Handle(object):
     def __init__(self, handle_class_name, handle_title):
         self.handle = win32gui.FindWindow(handle_class_name, handle_title)
         if self.handle == 0:
-            raise InvalidHandleError('无效的窗口句柄。')
+            self.load_error('无效的窗口句柄。')
         self.left, self.top, self.width, self.height = self.get_handle_rect()
+
+    def load_error(self, msg):
+        raise InvalidHandleError(msg)
 
     def check_handle(self, handle_class_name, handle_title):
         """验证句柄"""
@@ -44,20 +48,26 @@ class Handle(object):
         mfc_dc = mfc_dc if mfc_dc else self.create_handle_mfc_dc(dc)
         return mfc_dc.CreateCompatibleDC()
 
-    def handle_full_image(self, dc=None, mfc_dc=None, compatible_dc=None, image_file_name=''):
+    def get_handle_full_screen_shot_size(self):
+        """句柄截图大小"""
+        full_screen_width = int(self.width * HANDLE_PIXEL_RATIO)
+        full_screen_height = int(self.height * HANDLE_PIXEL_RATIO)
+        return full_screen_width, full_screen_height
+
+    def handle_full_screen_shot(self, dc=None, mfc_dc=None, compatible_dc=None, image_file_name=''):
         """句柄截图"""
         dc = dc if dc else self.create_handle_dc()
         mfc_dc = mfc_dc if mfc_dc else self.create_handle_mfc_dc(dc=dc)
         compatible_dc = compatible_dc if compatible_dc else self.handle_compatible_dc(dc=dc, mfc_dc=mfc_dc)
         save_bit_map = win32ui.CreateBitmap()  # 创建bigmap准备保存图片
         # 句柄全大小
-        full_screen_width, full_screen_height = int(self.width * 1.5), int(self.height * 1.5)
+        full_screen_width, full_screen_height = self.get_handle_full_screen_shot_size()
         full_size = (full_screen_width, full_screen_height)
         # 为bitmap开辟空间
         save_bit_map.CreateCompatibleBitmap(mfc_dc, full_screen_width, full_screen_height)
         # 高度saveDC，将截图保存到saveBitmap中
         compatible_dc.SelectObject(save_bit_map)
-        compatible_dc.BitBlt((0,0), full_size, mfc_dc, (0,0), win32con.SRCCOPY)
+        compatible_dc.BitBlt((0, 0), full_size, mfc_dc, (0, 0), win32con.SRCCOPY)
         # compatible_dc.BitBlt((0, 0), (self.width*2, self.height*2), mfc_dc, (71, 121), win32con.SRCCOPY)
         # 目标矩形顶点(0,0)长宽(w,h),源设备mfcDC,源矩形顶点tmptl
         rtns = save_bit_map.GetBitmapBits()

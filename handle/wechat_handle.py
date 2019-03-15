@@ -7,9 +7,11 @@ import time
 from handle import Handle, InvalidHandleError
 
 
-class WeChatMainWndForPCLoginHandle(Handle):
+class WeChatPCLoginHandle(Handle):
     class_name = "WeChatLoginWndForPC"
     class_titles = ["登录", '微信']
+    default_width = 280
+    default_height = 400
 
     def __init__(self):
         for title_index, class_title in enumerate(self.class_titles, start=1):
@@ -19,8 +21,8 @@ class WeChatMainWndForPCLoginHandle(Handle):
                 break
             except InvalidHandleError:
                 if title_index == len(self.class_titles):
-                    raise InvalidHandleError("没有登陆窗口，请确认您的操作")
-        self.change_position(None, None, 280, 400, not_ensure_move=False)
+                    self.load_error("没有登陆窗口，请确认您的操作")
+        self.change_position(None, None, self.default_width, self.default_height)
 
     def first_login(self):
         """第一次登陆"""
@@ -29,8 +31,6 @@ class WeChatMainWndForPCLoginHandle(Handle):
     def login(self):
         """登陆"""
         self.show_handle()
-        login_button_color = self.get_position_color(self.left + 140, self.top + 280)
-        print('login_button_color :', login_button_color)
         self.mouse_left_click_position(140, 280)
         self.check_login()
 
@@ -41,18 +41,18 @@ class WeChatMainWndForPCLoginHandle(Handle):
                 if self.check_handle("WeChatMainWndForPC", '微信'):
                     break
             self.show_handle()
-            color = self.get_position_color(self.left + 64, self.top + 98)
-            print(color)
             break
 
 
-class WeChatMainWndForPCHandle(Handle):
+class WeChatPCHandle(Handle):
     class_name = "WeChatMainWndForPC"
     class_title = "微信"
+    default_width = 850
+    default_height = 560
 
     def __init__(self):
         super().__init__(self.class_name, self.class_title)
-        self.change_position(None, None, 850, 560)
+        self.change_position(None, None, self.default_width, self.default_height)
 
     def message_list_move2top(self):
         position_x = self.left + 305
@@ -78,13 +78,45 @@ class WeChatMainWndForPCHandle(Handle):
         self.hidden_handle()
 
 
+class WeChatPCLogoutHandle(Handle):
+    class_name = "ConfirmDialog"
+    class_title = "微信"
+    default_width = 360
+    default_height = 224
+
+    def __init__(self):
+        super().__init__(self.class_name, self.class_title)
+        self.change_position(None, None, self.default_width, self.default_height)
+
+    def logout(self):
+        """退出登陆"""
+        self.set_handle_foreground()
+        self.show_handle()
+        self.mouse_left_click_position(225, 190)
+        # self.mouse_left_click_position(self.left + 190, self.top + 225)
+        self.check_logout()
+
+    def check_logout(self):
+        """退出登录验证"""
+        while 1:
+            if not self.check_handle(self.class_name, self.class_title):
+                if self.check_handle("WeChatLoginWndForPC", '微信'):
+                    break
+                # self.show_handle()
+                # color = self.get_position_color(self.left + 64, self.top + 98)
+                # print(color)
+            break
+
+
 if __name__ == '__main__':
-    # wx = WeChatMainWndForPCLoginHandle()
-    # wx.login()
-    wx = WeChatMainWndForPCHandle()
-    wx.handle_full_image(image_file_name='img.png')
-    # rect = wx.get_handle_rect()
-    # print(rect)
+    # wx = WeChatPCLogoutHandle()
+    # wx.logout()
+    # wx = WeChatPCHandle()
+
+    wx = WeChatPCLoginHandle()
+    wx.login()
+    # print(wx.handler)
+    # wx.handle_full_screen_shot(image_file_name='img.png')
     # wx.hidden_handle()
     # wx.show_handle()
     # wx.message_list_move2top()
