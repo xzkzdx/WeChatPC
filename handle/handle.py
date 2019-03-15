@@ -13,6 +13,7 @@ import win32clipboard
 from win32api import GetSystemMetrics
 from PIL import ImageGrab
 from settings import HANDLE_PIXEL_RATIO
+from tools.functions import path_join
 
 
 class InvalidHandleError(Exception):
@@ -21,11 +22,34 @@ class InvalidHandleError(Exception):
 
 
 class Handle(object):
-    def __init__(self, handle_class_name, handle_title):
+    handle = 0
+    class_name = ''
+    class_title = ''
+    screen_shot_file_name = '{}_.png'.format(class_name)
+    default_left = 0
+    default_top = 0
+    default_width = 0
+    default_height = 0
+    left, top, width, height = 0, 0, 0, 0
+
+    def initial(self, handle_class_name, handle_title, *default_rect):
         self.handle = win32gui.FindWindow(handle_class_name, handle_title)
         if self.handle == 0:
             self.load_error('无效的窗口句柄。')
         self.left, self.top, self.width, self.height = self.get_handle_rect()
+        self.format_rect(**{
+            'default_left': default_rect[0] if default_rect[0] else self.left,
+            'default_top': default_rect[1] if default_rect[1] else self.top,
+            'default_width': default_rect[2] if default_rect[2] else self.width,
+            'default_height': default_rect[3] if default_rect[3] else self.height
+        })
+        self.change_position(self.default_left, self.default_top, self.default_width, self.default_height)
+
+    # def __init__(self, handle_class_name, handle_title):
+    #     self.handle = win32gui.FindWindow(handle_class_name, handle_title)
+    #     if self.handle == 0:
+    #         self.load_error('无效的窗口句柄。')
+    #     self.left, self.top, self.width, self.height = self.get_handle_rect()
 
     def load_error(self, msg):
         raise InvalidHandleError(msg)
@@ -65,15 +89,11 @@ class Handle(object):
         full_size = (full_screen_width, full_screen_height)
         # 为bitmap开辟空间
         save_bit_map.CreateCompatibleBitmap(mfc_dc, full_screen_width, full_screen_height)
-        # 高度saveDC，将截图保存到saveBitmap中
         compatible_dc.SelectObject(save_bit_map)
         compatible_dc.BitBlt((0, 0), full_size, mfc_dc, (0, 0), win32con.SRCCOPY)
-        # compatible_dc.BitBlt((0, 0), (self.width*2, self.height*2), mfc_dc, (71, 121), win32con.SRCCOPY)
-        # 目标矩形顶点(0,0)长宽(w,h),源设备mfcDC,源矩形顶点tmptl
-        rtns = save_bit_map.GetBitmapBits()
-        if image_file_name:
-            save_bit_map.SaveBitmapFile(compatible_dc, image_file_name)
-        return rtns
+        self.screen_shot_file_name = image_file_name if image_file_name else self.screen_shot_file_name
+        save_bit_map.SaveBitmapFile(compatible_dc, path_join('image', self.screen_shot_file_name))
+        return save_bit_map.GetBitmapBits()
 
     @property
     def handler(self):
@@ -88,20 +108,25 @@ class Handle(object):
         # print(abs_position, handle_shape)
         return abs_position + handle_shape
 
+    def format_rect(self, **rect):
+        """rect must has four params,
+        example: (left, top, width, height)
+        if any param is None or lt zero, it will not change
+        """
+        if len(rect.values()) != 4:
+            raise TypeError("reset_rect() takes exactly 4 arguments (%s given)" % len(rect))
+        for r_key, r_value in rect.items():
+            if not (isinstance(r_value, int)) ^ (r_value is None):
+                raise ValueError("reset_rect() params must be int or None")
+            r_value = 0 if r_value is None else r_value
+            setattr(self, r_key, r_value)
+
     def reset_handle_rect(self, *rect, not_ensure_move=False):
         """rect must has four params,
         example: (left, top, width, height)
         if any param is None or lt zero, it will not change
         """
-        for r_ in rect:
-            if not (isinstance(r_, int)) ^ (r_ is None):
-                raise ValueError("reset_rect() params must be int or None")
-        if len(rect) != 4:
-            raise TypeError("reset_rect() takes exactly 4 arguments (%s given)" % len(rect))
-        self.left = self.left if rect[0] is None else rect[0]
-        self.top = self.top if rect[1] is None else rect[1]
-        self.width = self.width if rect[2] is None else rect[2]
-        self.height = self.height if rect[3] is None else rect[3]
+        self.format_rect(**{'left': rect[0], 'top': rect[1], 'width': rect[2], 'height': rect[3]})
         win32gui.MoveWindow(self.handle, self.left, self.top, self.width, self.height, not_ensure_move)
 
     def change_position(self, *args, not_ensure_move: bool = False, ensure_hidden: bool = True):
@@ -113,7 +138,7 @@ class Handle(object):
         """对微信端无效"""
         # self.show_handle()
         children_handle_list = []
-        win32gui.EnumChildWindows(self.handler, lambda hand, param: param.append(hand),  children_handle_list)
+        win32gui.EnumChildWindows(self.handler, lambda hand, param: param.append(hand), children_handle_list)
         return children_handle_list
 
     def set_handle_max(self):
