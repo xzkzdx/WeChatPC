@@ -77,6 +77,23 @@ class WeChatPCHandle(Handle):
             self.mouse_move_up(position_x, position_y) if move_up else self.mouse_move_down(position_x, position_y)
         self.hidden_handle()
 
+    def menu_more(self):
+        self.show_handle()
+        self.mouse_left_click_position(30, 535)
+        menu_handle = WeChatPCMenuHandle()
+        print(menu_handle.handler)
+
+
+class WeChatPCMenuHandle(Handle):
+    class_name = 'SetMenuWnd'
+    class_title = ""
+    default_width = 134
+    default_height = 138
+
+    def __init__(self):
+        super().__init__(self.class_name, self.class_title)
+        self.change_position(None, None, self.default_width, self.default_height)
+
 
 class WeChatPCLogoutHandle(Handle):
     class_name = "ConfirmDialog"
@@ -111,10 +128,11 @@ class WeChatPCLogoutHandle(Handle):
 if __name__ == '__main__':
     # wx = WeChatPCLogoutHandle()
     # wx.logout()
-    # wx = WeChatPCHandle()
+    wx = WeChatPCHandle()
+    wx.menu_more()
+    # wx = WeChatPCLoginHandle()
+    # wx.login()
 
-    wx = WeChatPCLoginHandle()
-    wx.login()
     # print(wx.handler)
     # wx.handle_full_screen_shot(image_file_name='img.png')
     # wx.hidden_handle()

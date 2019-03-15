@@ -109,6 +109,13 @@ class Handle(object):
         self.reset_handle_rect(*args, not_ensure_move=not_ensure_move)
         self.set_handle_min() if ensure_hidden else self.set_handle_foreground()
 
+    def get_children_handles(self):
+        """对微信端无效"""
+        # self.show_handle()
+        children_handle_list = []
+        win32gui.EnumChildWindows(self.handler, lambda hand, param: param.append(hand),  children_handle_list)
+        return children_handle_list
+
     def set_handle_max(self):
         """最大化句柄窗口"""
         # self.set_handle_min()
@@ -230,4 +237,7 @@ class Handle(object):
 
 
 if __name__ == '__main__':
-    print(ImageGrab.grab((0, 0, GetSystemMetrics(0), GetSystemMetrics(1))).load()[1, 0])
+    hWndList = []
+    # win32gui.EnumWindows(lambda hWnd, param: param.append(hWnd), hWndList)
+    win32gui.EnumChildWindows(1772048, lambda hand, param: param.append(hand), hWndList)
+    print(hWndList)
