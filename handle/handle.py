@@ -12,7 +12,6 @@ import time
 import win32clipboard
 from win32api import GetSystemMetrics
 from PIL import ImageGrab
-from PIL.Image import Image
 
 
 class InvalidHandleError(Exception):
