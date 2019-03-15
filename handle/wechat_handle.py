@@ -52,7 +52,7 @@ class WeChatMainWndForPCHandle(Handle):
 
     def __init__(self):
         super().__init__(self.class_name, self.class_title)
-        self.change_position(0, 0, 850, 560)
+        self.change_position(None, None, 850, 560)
 
     def message_list_move2top(self):
         position_x = self.left + 305
