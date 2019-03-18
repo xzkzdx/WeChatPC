@@ -71,14 +71,34 @@ class WeChatPCHandle(Handle):
     def menu_more(self):
         self.show_handle()
         self.mouse_left_click_position(30, 535)
-        menu_handle = WeChatPCMenuHandle()
-        print(menu_handle.handler)
+        feedback = self.search_children_handle_from_parent('SetMenuWnd')
+        print(feedback)
+        # menu_handle = WeChatPCMenuHandle()
+        # menu_handle.feedback('希望微信PC版出朋友圈功能')
+        # print(menu_handle.handler)
 
 
 class WeChatPCMenuHandle(Handle):
 
     def __init__(self):
         self.initial("SetMenuWnd", "", *(None, None, 134, 138))
+
+    def feedback(self, message):
+        self.show_handle()
+        self.mouse_left_click_position(60, 25)
+
+        # feedback.feedback(message)
+
+
+class WeChatPCFeedbackHandle(Handle):
+    def __init__(self):
+        self.initial("SetMenuWnd", "", *(None, None, 134, 138))
+
+    def feedback(self, message):
+        self.set_text_to_clipboard(message)
+        self.show_handle()
+        self.mouse_left_click_position(100, 100)
+        self.ctrl_v()
 
 
 class WeChatPCLogoutHandle(Handle):

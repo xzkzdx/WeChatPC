@@ -37,19 +37,13 @@ class Handle(object):
         if self.handle == 0:
             self.load_error('无效的窗口句柄。')
         self.left, self.top, self.width, self.height = self.get_handle_rect()
-        self.format_rect(**{
-            'default_left': default_rect[0] if default_rect[0] else self.left,
-            'default_top': default_rect[1] if default_rect[1] else self.top,
-            'default_width': default_rect[2] if default_rect[2] else self.width,
-            'default_height': default_rect[3] if default_rect[3] else self.height
+        self.set_format_rect(**{
+            'default_left': default_rect[0] if default_rect[0] is not None else self.left,
+            'default_top': default_rect[1] if default_rect[1] is not None else self.top,
+            'default_width': default_rect[2] if default_rect[2] is not None else self.width,
+            'default_height': default_rect[3] if default_rect[3] is not None else self.height
         })
         self.change_position(self.default_left, self.default_top, self.default_width, self.default_height)
-
-    # def __init__(self, handle_class_name, handle_title):
-    #     self.handle = win32gui.FindWindow(handle_class_name, handle_title)
-    #     if self.handle == 0:
-    #         self.load_error('无效的窗口句柄。')
-    #     self.left, self.top, self.width, self.height = self.get_handle_rect()
 
     def load_error(self, msg):
         raise InvalidHandleError(msg)
@@ -108,7 +102,7 @@ class Handle(object):
         # print(abs_position, handle_shape)
         return abs_position + handle_shape
 
-    def format_rect(self, **rect):
+    def set_format_rect(self, **rect):
         """rect must has four params,
         example: (left, top, width, height)
         if any param is None or lt zero, it will not change
@@ -126,13 +120,17 @@ class Handle(object):
         example: (left, top, width, height)
         if any param is None or lt zero, it will not change
         """
-        self.format_rect(**{'left': rect[0], 'top': rect[1], 'width': rect[2], 'height': rect[3]})
+        self.set_format_rect(**{'left': rect[0], 'top': rect[1], 'width': rect[2], 'height': rect[3]})
         win32gui.MoveWindow(self.handle, self.left, self.top, self.width, self.height, not_ensure_move)
 
     def change_position(self, *args, not_ensure_move: bool = False, ensure_hidden: bool = True):
         self.show_handle()
         self.reset_handle_rect(*args, not_ensure_move=not_ensure_move)
         self.set_handle_min() if ensure_hidden else self.set_handle_foreground()
+
+    def search_children_handle_from_parent(self, class_name):
+        children_handle = win32gui.FindWindowEx(self.handle, 0, class_name, None)
+        return children_handle
 
     def get_children_handles(self):
         """对微信端无效"""
@@ -234,6 +232,9 @@ class Handle(object):
         """模拟键盘多个独立按键"""
         for key in keys:
             self.click_single_key(key)
+
+    def ctrl_v(self):
+        self.click_multi_keys(win32con.VK_CONTROL, 86)
 
     def click_combination_keys(self, *args):
         """模拟键盘组合按键"""
