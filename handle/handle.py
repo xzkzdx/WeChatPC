@@ -257,10 +257,10 @@ class Handle(object):
         """获取屏幕分辨率"""
         return GetSystemMetrics(0), GetSystemMetrics(1)
 
-    def show_screen_shot(self):
+    def show_screen_shot(self, key_function=None, key_params: tuple = None):
         """显示截图"""
         exists_path('image', self.screen_shot_file_name)
-        show_image(self.screen_shot_file_name)
+        show_image(self.screen_shot_file_name, key_function=key_function, key_params=key_params)
 
     def get_position_color(self, x_position, y_position, image_name=''):
         absolute_position = (x_position * HANDLE_PIXEL_RATIO, y_position * HANDLE_PIXEL_RATIO)

@@ -3,9 +3,37 @@
 # @Time   : 2019/3/15 13:45
 # @File   : functions.py
 import os
-
+import psutil
+import time
 from PIL import Image
 from settings import ABS_DIR_PATH, IMAGE_DIR_NAME
+
+
+def get_process():
+    proc_info = {}
+    for proc in psutil.process_iter():
+        proc_info[proc.pid] = proc.name()
+    return proc_info
+
+
+def close_image(before_pids: dict, after_pids: dict):
+    for pid, name in after_pids.items():
+        if name not in before_pids.values():
+            for proc in psutil.process_iter():
+                if proc.pid == pid and 'hoto' in name:
+                    proc.kill()
+
+
+def close_process(func):
+    def __inner(*args, **kwargs):
+        before_process = get_process()
+        f_result = func(*args, **kwargs)
+        after_process = get_process()
+        print(len(before_process.keys()), len(after_process.keys()))
+        close_image(before_process, after_process)
+        return f_result
+
+    return __inner
 
 
 def get_img_pix_color(png_name, x_position=0, y_position=0):
@@ -21,11 +49,12 @@ def exists_path(*file_name):
     return os.path.exists(path_join(ABS_DIR_PATH, *file_name))
 
 
-def show_image(png_name):
+@close_process
+def show_image(png_name, key_function=None, key_params: tuple = None):
     img_src = Image.open(path_join(ABS_DIR_PATH, IMAGE_DIR_NAME, png_name))
     img_src.show()
-
-    # img_src
+    if key_function:
+        key_function(*key_params)
 
 
 def make_dir(dir_path, dir_name):
@@ -45,4 +74,4 @@ if __name__ == '__main__':
     # make_dir(ABS_DIR_PATH, IMAGE_DIR_NAME)
     # print(path_join('image', 'imag', 'img.png'))
     # print()
-    show_image('login.png')
+    show_image('login.png', key_function=lambda x: time.sleep(x), key_params=(1,))

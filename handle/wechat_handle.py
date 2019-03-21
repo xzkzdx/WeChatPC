@@ -21,9 +21,10 @@ class WeChatPCLoginHandle(Handle):
                 if title_index == len(class_titles):
                     self.load_error("没有登陆窗口，请确认您的操作")
 
-    def code_login(self):
+    def code_login(self, relative_x=140, relative_y=280):
         """二维码登陆"""
-        pass
+        self.handle_full_screen_shot(image_file_name='code_login.png')
+        self.show_screen_shot(key_function=self.check_login, key_params=(relative_x, relative_y))
 
     def click_login(self, relative_x=140, relative_y=280):
         """点击登陆按钮登录"""
