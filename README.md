@@ -12,5 +12,5 @@ pip install PIL
 
 在原有基础上，可以按需求进行功能扩充。
 
-目前仅支持，Windows版，欢迎爱好者们上传API共同维护。
+目前仅支持Windows版。
 
