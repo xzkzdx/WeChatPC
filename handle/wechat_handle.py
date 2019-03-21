@@ -5,6 +5,8 @@
 import time
 
 from handle import Handle, InvalidHandleError
+from settings import HANDLE_PIXEL_RATIO
+from tools.functions import get_img_pix_color
 
 
 class WeChatPCLoginHandle(Handle):
@@ -12,32 +14,40 @@ class WeChatPCLoginHandle(Handle):
     def __init__(self):
         class_titles = ["登录", '微信']
         for title_index, class_title in enumerate(class_titles, start=1):
-            self.class_title = "WeChatLoginWndForPC"
             try:
-                self.initial(self.class_name, self.class_title, *(None, None, 280, 400))
+                self.initial("WeChatLoginWndForPC", class_title, *(None, None, 280, 400))
                 break
             except InvalidHandleError:
                 if title_index == len(class_titles):
                     self.load_error("没有登陆窗口，请确认您的操作")
 
-    def first_login(self):
-        """第一次登陆"""
+    def code_login(self):
+        """二维码登陆"""
         pass
 
-    def login(self):
-        """登陆"""
+    def click_login(self, relative_x=140, relative_y=280):
+        """点击登陆按钮登录"""
         self.show_handle()
-        self.mouse_left_click_position(140, 280)
-        self.check_login()
+        # wx.handle_full_screen_shot(image_file_name='login.png')
+        login_color = wx.get_position_color(relative_x, relative_y)
+        # print(login_color)
+        if login_color == (26, 173, 25, 255):
+            self.mouse_left_click_position(relative_x, relative_y)
+        self.check_login(relative_x, relative_y)
 
-    def check_login(self):
+    def check_login(self, relative_x, relative_y):
         """登录验证"""
         while 1:
+            # wx.handle_full_screen_shot(image_file_name='login.png')
             if not self.check_handle(self.class_name, self.class_title):
                 if self.check_handle("WeChatMainWndForPC", '微信'):
                     break
+            else:
+                login_color = wx.get_position_color(relative_x, relative_y)
+                print(login_color)
+                if login_color != (26, 173, 25, 255):
+                    self.code_login()
             self.show_handle()
-            break
 
 
 class WeChatPCHandle(Handle):
@@ -123,19 +133,19 @@ class WeChatPCLogoutHandle(Handle):
                 # self.show_handle()
                 # color = self.get_position_color(self.left + 64, self.top + 98)
                 # print(color)
-            break
+            # break
 
 
 if __name__ == '__main__':
     # wx = WeChatPCLogoutHandle()
     # wx.logout()
-    wx = WeChatPCHandle()
-    wx.menu_more()
-    # wx = WeChatPCLoginHandle()
-    # wx.login()
+    # wx = WeChatPCHandle()
+    # wx.menu_more()
+    wx = WeChatPCLoginHandle()
+    wx.handle_full_screen_shot(image_file_name='login.png')
+    wx.click_login()
 
     # print(wx.handler)
-    wx.handle_full_screen_shot(image_file_name='img.png')
     # wx.hidden_handle()
     # wx.show_handle()
     # wx.message_list_move2top()
