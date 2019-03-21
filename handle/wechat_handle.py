@@ -5,8 +5,6 @@
 import time
 
 from handle import Handle, InvalidHandleError
-from settings import HANDLE_PIXEL_RATIO
-from tools.functions import get_img_pix_color
 
 
 class WeChatPCLoginHandle(Handle):
@@ -29,8 +27,8 @@ class WeChatPCLoginHandle(Handle):
     def click_login(self, relative_x=140, relative_y=280):
         """点击登陆按钮登录"""
         self.show_handle()
-        # wx.handle_full_screen_shot(image_file_name='login.png')
-        login_color = wx.get_position_color(relative_x, relative_y)
+        self.handle_full_screen_shot(image_file_name='login.png')
+        login_color = self.get_position_color(relative_x, relative_y)
         # print(login_color)
         if login_color == (26, 173, 25, 255):
             self.mouse_left_click_position(relative_x, relative_y)
@@ -38,17 +36,17 @@ class WeChatPCLoginHandle(Handle):
 
     def check_login(self, relative_x, relative_y):
         """登录验证"""
+        self.show_handle()
         while 1:
             # wx.handle_full_screen_shot(image_file_name='login.png')
             if not self.check_handle(self.class_name, self.class_title):
                 if self.check_handle("WeChatMainWndForPC", '微信'):
                     break
             else:
-                login_color = wx.get_position_color(relative_x, relative_y)
+                login_color = self.get_position_color(relative_x, relative_y)
                 print(login_color)
                 if login_color != (26, 173, 25, 255):
                     self.code_login()
-            self.show_handle()
 
 
 class WeChatPCHandle(Handle):

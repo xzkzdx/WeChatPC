@@ -29,7 +29,7 @@ def close_process(func):
         before_process = get_process()
         f_result = func(*args, **kwargs)
         after_process = get_process()
-        print(len(before_process.keys()), len(after_process.keys()))
+        # print(len(before_process.keys()), len(after_process.keys()))
         close_image(before_process, after_process)
         return f_result
 
