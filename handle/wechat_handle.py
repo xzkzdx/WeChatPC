@@ -78,17 +78,23 @@ class WeChatPCHandle(Handle):
     def menu_more(self):
         self.show_handle()
         self.mouse_left_click_position(30, 535)
-        feedback = self.search_children_handle_from_parent('SetMenuWnd')
-        print(feedback)
+        # feedback = self.search_children_handle_from_parent('SetMenuWnd')
+        # print(feedback)
         # menu_handle = WeChatPCMenuHandle()
         # menu_handle.feedback('希望微信PC版出朋友圈功能')
         # print(menu_handle.handler)
+        # handle_ = self.get_handle_by_position(self.left + 30, self.top + 535)
+        handle_ = self.get_handle_by_position(105, 470)
+        print(handle_)
+        print(self.get_handle_name(handle_))
+        print(self.get_handle_title(handle_))
+        print(self.get_handle_title(self.handle))
 
 
 class WeChatPCMenuHandle(Handle):
 
     def __init__(self):
-        self.initial("SetMenuWnd", "", *(None, None, 134, 138))
+        self.initial("SetMenuWnd", "微信", *(None, None, 134, 138))
 
     def feedback(self, message):
         self.show_handle()
@@ -136,14 +142,10 @@ class WeChatPCLogoutHandle(Handle):
 if __name__ == '__main__':
     # wx = WeChatPCLogoutHandle()
     # wx.logout()
-    # wx = WeChatPCHandle()
-    # wx.menu_more()
-    wx = WeChatPCLoginHandle()
-    wx.handle_full_screen_shot(image_file_name='login.png')
-    wx.click_login()
+    # wx = WeChatPCLoginHandle()
+    # wx.handle_full_screen_shot(image_file_name='login.png')
+    # wx.click_login()
 
-    # print(wx.handler)
-    # wx.hidden_handle()
-    # wx.show_handle()
-    # wx.message_list_move2top()
-    # wx.message_list_move2bottom()
+    wx = WeChatPCHandle()
+    wx.menu_more()
+

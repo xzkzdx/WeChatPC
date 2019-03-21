@@ -11,7 +11,6 @@ import win32con
 import time
 import win32clipboard
 from win32api import GetSystemMetrics
-from PIL import ImageGrab
 from settings import HANDLE_PIXEL_RATIO
 from tools.functions import path_join, get_img_pix_color, show_image, exists_path
 
@@ -130,8 +129,20 @@ class Handle(object):
         self.reset_handle_rect(*args, not_ensure_move=not_ensure_move)
         self.set_handle_min() if ensure_hidden else self.set_handle_foreground()
 
+    def get_handle_by_position(self, position_x, position_y):
+        # return win32gui.WindowFromPoint((position_x, position_y,))
+        self.set_mouse_position(self.left + position_x, self.top + position_y)
+        return win32gui.WindowFromPoint(self.get_mouse_position())
+
+    def get_handle_name(self, handle):
+        return win32gui.GetClassName(handle) if handle else self.class_name
+
+    def get_handle_title(self, handle):
+        return win32gui.GetWindowText(handle) if handle else self.class_name
+
     def search_children_handle_from_parent(self, class_name):
         children_handle = win32gui.FindWindowEx(self.handle, 0, class_name, None)
+        win32gui.ChildWindowFromPoint()
         return children_handle
 
     def get_children_handles(self):
@@ -267,3 +278,9 @@ class Handle(object):
         self.handle_full_screen_shot(image_file_name=image_name)
         position_color = get_img_pix_color(self.screen_shot_file_name, *absolute_position)
         return position_color
+
+
+if __name__ == '__main__':
+    print(win32gui.GetClassName(1378116))
+    # print(win32gui.GetWindowText(19073018))
+    print(win32gui.FindWindow('SetMenuWnd', ''))
