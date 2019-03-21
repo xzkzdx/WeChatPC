@@ -264,20 +264,6 @@ class Handle(object):
 
     def get_position_color(self, x_position, y_position, image_name=''):
         absolute_position = (x_position * HANDLE_PIXEL_RATIO, y_position * HANDLE_PIXEL_RATIO)
-        self.screen_shot_file_name = image_name if image_name else self.screen_shot_file_name
-        self.handle_full_screen_shot()
+        self.handle_full_screen_shot(image_file_name=image_name)
         position_color = get_img_pix_color(self.screen_shot_file_name, *absolute_position)
-        # s_width, s_height = self.get_screen_resolution()  # Python获取屏幕分辨率
-        # im = ImageGrab.grab((0, 0, s_height, s_height))  # 与坐标不同，这里0，0，1，1是一个像素，而坐标是从0~1919的
-        # pix = im.load()
-        # return pix[x_position, y_position]
-        # return ImageGrab.grab((0, 0, s_width, s_height)).load()[x_position, y_position]
         return position_color
-
-
-if __name__ == '__main__':
-    # hWndList = []
-    # win32gui.EnumWindows(lambda hWnd, param: param.append(hWnd), hWndList)
-    # win32gui.EnumChildWindows(1772048, lambda hand, param: param.append(hand), hWndList)
-    # print(hWndList)
-    print(path_join('image', 'frrfv'))

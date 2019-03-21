@@ -8,7 +8,6 @@ from handle.wechat_handle import WeChatPCLoginHandle
 class WeChatAPI(object):
     def login_wechat(self):
         wx = WeChatPCLoginHandle()
-        # wx.handle_full_screen_shot(image_file_name='login.png')
         wx.click_login()
 
 

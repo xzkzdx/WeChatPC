@@ -5,6 +5,7 @@
 import time
 
 from handle import Handle, InvalidHandleError
+from settings import LOGIN_UPDATE_TIME
 
 
 class WeChatPCLoginHandle(Handle):
@@ -27,9 +28,7 @@ class WeChatPCLoginHandle(Handle):
     def click_login(self, relative_x=140, relative_y=280):
         """点击登陆按钮登录"""
         self.show_handle()
-        self.handle_full_screen_shot(image_file_name='login.png')
-        login_color = self.get_position_color(relative_x, relative_y)
-        # print(login_color)
+        login_color = self.get_position_color(relative_x, relative_y, image_name='click_login.png')
         if login_color == (26, 173, 25, 255):
             self.mouse_left_click_position(relative_x, relative_y)
         self.check_login(relative_x, relative_y)
@@ -38,13 +37,12 @@ class WeChatPCLoginHandle(Handle):
         """登录验证"""
         self.show_handle()
         while 1:
-            # wx.handle_full_screen_shot(image_file_name='login.png')
+            time.sleep(LOGIN_UPDATE_TIME)
             if not self.check_handle(self.class_name, self.class_title):
                 if self.check_handle("WeChatMainWndForPC", '微信'):
                     break
             else:
                 login_color = self.get_position_color(relative_x, relative_y)
-                print(login_color)
                 if login_color != (26, 173, 25, 255):
                     self.code_login()
 
