@@ -9,6 +9,7 @@ from settings import LOGIN_UPDATE_TIME
 
 
 class WeChatPCLoginHandle(Handle):
+    """WeChat登录句柄"""
 
     def __init__(self):
         class_titles = ["登录", '微信']
@@ -48,6 +49,7 @@ class WeChatPCLoginHandle(Handle):
 
 
 class WeChatPCHandle(Handle):
+    """WeChat父句柄"""
 
     def __init__(self):
         self.initial("WeChatMainWndForPC", "微信", *(None, None, 850, 560))
@@ -75,35 +77,51 @@ class WeChatPCHandle(Handle):
             self.mouse_move_up(position_x, position_y) if move_up else self.mouse_move_down(position_x, position_y)
         self.hidden_handle()
 
-    def menu_more(self):
+    def get_menu_setting(self):
         self.show_handle()
         self.mouse_left_click_position(30, 535)
-        # feedback = self.search_children_handle_from_parent('SetMenuWnd')
-        # print(feedback)
-        # menu_handle = WeChatPCMenuHandle()
-        # menu_handle.feedback('希望微信PC版出朋友圈功能')
-        # print(menu_handle.handler)
-        # handle_ = self.get_handle_by_position(self.left + 30, self.top + 535)
-        handle_ = self.get_handle_by_position(105, 470)
-        print(handle_)
-        print(self.get_handle_name(handle_))
-        print(self.get_handle_title(handle_))
-        print(self.get_handle_title(self.handle))
+        menu_handle_id = self.get_handle_by_position(105, 470)
+        print(menu_handle_id)
+        self.mouse_left_click_position(60, 115, handle_id=menu_handle_id)
+
+    def get_menu_feedback(self):
+        self.mouse_left_click_position(30, 535)
+        menu_handle_id = self.get_handle_by_position(105, 470)
+        print(menu_handle_id)
+        self.mouse_left_click_position(60, 25, handle_id=menu_handle_id)
+
+    def get_menu_backup_and_recovery(self):
+        self.mouse_left_click_position(30, 535)
+        menu_handle_id = self.get_handle_by_position(105, 470)
+        print(menu_handle_id)
+        self.mouse_left_click_position(60, 70, handle_id=menu_handle_id)
 
 
 class WeChatPCMenuHandle(Handle):
+    """左下角菜单子句柄"""
 
-    def __init__(self):
-        self.initial("SetMenuWnd", "微信", *(None, None, 134, 138))
+    def __init__(self, handle_id, father_handle_id):
+        """初始化菜单句柄id"""
+        self.handle_id = handle_id
+        self.father_handle_id = father_handle_id
 
-    def feedback(self, message):
-        self.show_handle()
-        self.mouse_left_click_position(60, 25)
+    def click_feedback(self, message):
+        """点击选择意见反馈"""
+        self.mouse_left_click_position(60, 25, handle_id=self.handle_id)
+        print(message)
 
-        # feedback.feedback(message)
+    def click_backup_and_recovery(self):
+        """点击选择备份与恢复"""
+        self.mouse_left_click_position(60, 70, handle_id=self.handle_id)
+
+    def click_setting(self):
+        """点击选择设置"""
+        self.mouse_left_click_position(60, 115, handle_id=self.handle_id)
 
 
 class WeChatPCFeedbackHandle(Handle):
+    """意见反馈句柄"""
+
     def __init__(self):
         self.initial("SetMenuWnd", "", *(None, None, 134, 138))
 
@@ -114,7 +132,29 @@ class WeChatPCFeedbackHandle(Handle):
         self.ctrl_v()
 
 
+class WeChatSettingWndHandle(Handle):
+    def __init__(self, father_handle_id=None):
+        # self.father_handle_id = father_handle_id
+        self.initial('SettingWnd', '设置', *(None, None, 550, 470))
+
+    def click_logout(self):
+        """点击退出登录"""
+        # self.set_handle_foreground()
+        # self.show_handle(self.father_handle_id)
+        self.show_handle()
+        print('haha', self.handle)
+        # self.set_mouse_position(self.left + 335, self. top + 235)
+        # time.sleep(1)
+        # self.mouse_left_click_position(335, 235)
+        # self.click_single_key(self.TAB)
+        # self.click_single_key(self.ENTER)
+        self.mouse_left_click_position(282, 282)
+        print('已点击')
+        # return WeChatPCLogoutHandle()
+
+
 class WeChatPCLogoutHandle(Handle):
+    """WeChat退出登录句柄"""
 
     def __init__(self):
         self.initial("ConfirmDialog", "微信", *(None, None, 360, 224))
@@ -126,6 +166,14 @@ class WeChatPCLogoutHandle(Handle):
         self.mouse_left_click_position(225, 190)
         # self.mouse_left_click_position(self.left + 190, self.top + 225)
         self.check_logout()
+
+    def cancel(self):
+        print('cancel')
+        self.set_handle_foreground()
+        self.show_handle()
+        print(self.left + 305, self.top + 190)
+        self.set_mouse_position(self.left + 305, self.top + 190)
+        self.mouse_left_click_position(305, 190)
 
     def check_logout(self):
         """退出登录验证"""
@@ -147,5 +195,7 @@ if __name__ == '__main__':
     # wx.click_login()
 
     wx = WeChatPCHandle()
-    wx.menu_more()
-
+    wx.get_menu_setting()
+    # wx.get_menu().click_feedback('hello wechat')
+    wx_setting = WeChatSettingWndHandle()
+    wx_setting.click_logout()

@@ -38,6 +38,7 @@ class Handle(object):
         if self.handle == 0:
             self.load_error('无效的窗口句柄。')
         self.left, self.top, self.width, self.height = self.get_handle_rect()
+        print(self.left, self.top, self.width, self.height)
         self.set_format_rect(**{
             'default_left': default_rect[0] if default_rect[0] is not None else self.left,
             'default_top': default_rect[1] if default_rect[1] is not None else self.top,
@@ -161,9 +162,10 @@ class Handle(object):
         """最小化句柄窗口"""
         win32gui.ShowWindow(self.handle, win32con.SW_MINIMIZE)
 
-    def show_handle(self):
+    def show_handle(self, handle_id=None):
         """显示句柄窗口"""
-        win32gui.ShowWindow(self.handle, win32con.SW_SHOWDEFAULT)
+        handle_id = handle_id if handle_id else self.handle
+        win32gui.ShowWindow(handle_id, win32con.SW_SHOWDEFAULT)
         # self.set_handle_background()
 
     def hidden_handle(self):
@@ -207,16 +209,16 @@ class Handle(object):
         start_position = win32api.MAKELONG(x_position, y_position)
         end_position = win32api.MAKELONG(x_end_position, y_end_position)
         self.set_mouse_position(x_position, y_position)
-        time.sleep(int(sleep_time))
+        time.sleep(sleep_time)
         # 点击左键
         win32api.SendMessage(self.handle, win32con.WM_LBUTTONDOWN, win32con.MK_LBUTTON, start_position)
         self.set_mouse_position(x_end_position, y_end_position)
-        time.sleep(int(sleep_time))
+        time.sleep(sleep_time)
         win32api.mouse_event(win32con.MOUSEEVENTF_WHEEL, x_position, y_position, 1)
         win32api.mouse_event(win32con.MOUSEEVENTF_MOVE, 0, 0, -1)
-        time.sleep(int(sleep_time))
+        time.sleep(sleep_time)
         win32api.SendMessage(self.handle, win32con.WM_LBUTTONUP, win32con.MK_LBUTTON, end_position)
-        time.sleep(int(sleep_time))
+        time.sleep(sleep_time)
 
     def mouse_right_click_position(self, x_position, y_position, sleep_time=0.1, handle_id=None):
         """鼠标右点击"""
@@ -226,7 +228,7 @@ class Handle(object):
         # 点击左键
         win32api.SendMessage(handle_id, win32con.WM_RBUTTONDOWN, win32con.MK_RBUTTON, long_position)
         win32api.SendMessage(handle_id, win32con.WM_RBUTTONUP, win32con.MK_RBUTTON, long_position)
-        time.sleep(int(sleep_time))
+        time.sleep(sleep_time)
 
     def mouse_left_click_position(self, x_position, y_position, sleep_time=0.1, handle_id=None):
         """鼠标左点击"""
@@ -283,6 +285,4 @@ class Handle(object):
 
 
 if __name__ == '__main__':
-    print(win32gui.GetClassName(1378116))
-    # print(win32gui.GetWindowText(19073018))
     print(win32gui.FindWindow('SetMenuWnd', ''))
