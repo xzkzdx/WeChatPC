@@ -218,22 +218,24 @@ class Handle(object):
         win32api.SendMessage(self.handle, win32con.WM_LBUTTONUP, win32con.MK_LBUTTON, end_position)
         time.sleep(int(sleep_time))
 
-    def mouse_right_click_position(self, x_position, y_position, sleep_time=0.1):
+    def mouse_right_click_position(self, x_position, y_position, sleep_time=0.1, handle_id=None):
         """鼠标右点击"""
         # 将两个16位的值连接成一个32位的地址坐标
         long_position = win32api.MAKELONG(x_position, y_position)
+        handle_id = handle_id if handle_id else self.handle
         # 点击左键
-        win32api.SendMessage(self.handle, win32con.WM_RBUTTONDOWN, win32con.MK_RBUTTON, long_position)
-        win32api.SendMessage(self.handle, win32con.WM_RBUTTONUP, win32con.MK_RBUTTON, long_position)
+        win32api.SendMessage(handle_id, win32con.WM_RBUTTONDOWN, win32con.MK_RBUTTON, long_position)
+        win32api.SendMessage(handle_id, win32con.WM_RBUTTONUP, win32con.MK_RBUTTON, long_position)
         time.sleep(int(sleep_time))
 
-    def mouse_left_click_position(self, x_position, y_position, sleep_time=0.1):
+    def mouse_left_click_position(self, x_position, y_position, sleep_time=0.1, handle_id=None):
         """鼠标左点击"""
         # 将两个16位的值连接成一个32位的地址坐标
         long_position = win32api.MAKELONG(x_position, y_position)
+        handle_id = handle_id if handle_id else self.handle
         # 点击左键
-        win32api.SendMessage(self.handle, win32con.WM_LBUTTONDOWN, win32con.MK_LBUTTON, long_position)
-        win32api.SendMessage(self.handle, win32con.WM_LBUTTONUP, win32con.MK_LBUTTON, long_position)
+        win32api.SendMessage(handle_id, win32con.WM_LBUTTONDOWN, win32con.MK_LBUTTON, long_position)
+        win32api.SendMessage(handle_id, win32con.WM_LBUTTONUP, win32con.MK_LBUTTON, long_position)
         time.sleep(sleep_time)
 
     def click_single_key(self, key):
