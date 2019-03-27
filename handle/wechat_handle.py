@@ -5,7 +5,7 @@
 import time
 
 from handle import Handle, InvalidHandleError
-from settings import LOGIN_UPDATE_TIME
+from settings import LOGIN_UPDATE_TIME, ERROR_IGNORE_TIME
 
 
 class WeChatPCLoginHandle(Handle):
@@ -133,24 +133,23 @@ class WeChatPCFeedbackHandle(Handle):
 
 
 class WeChatSettingWndHandle(Handle):
-    def __init__(self, father_handle_id=None):
-        # self.father_handle_id = father_handle_id
+    def __init__(self):
         self.initial('SettingWnd', '设置', *(None, None, 550, 470))
 
     def click_logout(self):
         """点击退出登录"""
-        # self.set_handle_foreground()
-        # self.show_handle(self.father_handle_id)
+        import threading
         self.show_handle()
-        print('haha', self.handle)
-        # self.set_mouse_position(self.left + 335, self. top + 235)
-        # time.sleep(1)
-        # self.mouse_left_click_position(335, 235)
-        # self.click_single_key(self.TAB)
-        # self.click_single_key(self.ENTER)
-        self.mouse_left_click_position(282, 282)
-        print('已点击')
-        # return WeChatPCLogoutHandle()
+        # 线程解决退出登录鼠标左键无法抬起的问题
+        mouse_left = threading.Thread(target=self.mouse_left_click_position, args=(282, 282,))
+        mouse_left.start()
+        while 1:
+            try:
+                confirm_dialog = WeChatPCLogoutHandle()
+                threading.Thread(target=confirm_dialog.logout).start()
+                break
+            except InvalidHandleError:
+                time.sleep(ERROR_IGNORE_TIME)
 
 
 class WeChatPCLogoutHandle(Handle):
@@ -168,10 +167,8 @@ class WeChatPCLogoutHandle(Handle):
         self.check_logout()
 
     def cancel(self):
-        print('cancel')
         self.set_handle_foreground()
         self.show_handle()
-        print(self.left + 305, self.top + 190)
         self.set_mouse_position(self.left + 305, self.top + 190)
         self.mouse_left_click_position(305, 190)
 
@@ -181,21 +178,19 @@ class WeChatPCLogoutHandle(Handle):
             if not self.check_handle(self.class_name, self.class_title):
                 if self.check_handle("WeChatLoginWndForPC", '微信'):
                     break
-                # self.show_handle()
-                # color = self.get_position_color(self.left + 64, self.top + 98)
-                # print(color)
-            # break
 
 
 if __name__ == '__main__':
     # wx = WeChatPCLogoutHandle()
     # wx.logout()
-    # wx = WeChatPCLoginHandle()
+    wx = WeChatPCLoginHandle()
     # wx.handle_full_screen_shot(image_file_name='login.png')
-    # wx.click_login()
+    wx.click_login()
 
     wx = WeChatPCHandle()
     wx.get_menu_setting()
     # wx.get_menu().click_feedback('hello wechat')
-    wx_setting = WeChatSettingWndHandle()
-    wx_setting.click_logout()
+    # wx_setting = WeChatSettingWndHandle()
+    # wx_setting.click_logout()
+    # confirm_dialog = WeChatPCLogoutHandle()
+    # confirm_dialog.cancel()
