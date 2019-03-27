@@ -4,6 +4,8 @@
 # @File   : wechat_handle.py
 import time
 
+import pywintypes
+
 from handle import Handle, InvalidHandleError
 from settings import LOGIN_UPDATE_TIME, ERROR_IGNORE_TIME
 
@@ -37,15 +39,29 @@ class WeChatPCLoginHandle(Handle):
     def check_login(self, relative_x, relative_y):
         """登录验证"""
         self.show_handle()
+        do_check = True
+        first_check = True
         while 1:
             time.sleep(LOGIN_UPDATE_TIME)
             if not self.check_handle(self.class_name, self.class_title):
                 if self.check_handle("WeChatMainWndForPC", '微信'):
                     break
-            else:
-                login_color = self.get_position_color(relative_x, relative_y)
-                if login_color != (26, 173, 25, 255):
+            elif first_check:
+                first_check = False
+                for i in range(1, 15):
+                    """斜向求值"""
+                    try:
+                        change_color = self.get_position_color(130 + i, 340 + i)
+                    except pywintypes.error:
+                        return
+                    if change_color != (245, 245, 245, 255):
+                        """全灰度判断"""
+                        do_check = False
+                        # print(130 + i, 340 + i)
+                        break
+                if do_check:
                     self.code_login()
+                    do_check = False
 
 
 class WeChatPCHandle(Handle):
@@ -81,19 +97,16 @@ class WeChatPCHandle(Handle):
         self.show_handle()
         self.mouse_left_click_position(30, 535)
         menu_handle_id = self.get_handle_by_position(105, 470)
-        print(menu_handle_id)
         self.mouse_left_click_position(60, 115, handle_id=menu_handle_id)
 
     def get_menu_feedback(self):
         self.mouse_left_click_position(30, 535)
         menu_handle_id = self.get_handle_by_position(105, 470)
-        print(menu_handle_id)
         self.mouse_left_click_position(60, 25, handle_id=menu_handle_id)
 
     def get_menu_backup_and_recovery(self):
         self.mouse_left_click_position(30, 535)
         menu_handle_id = self.get_handle_by_position(105, 470)
-        print(menu_handle_id)
         self.mouse_left_click_position(60, 70, handle_id=menu_handle_id)
 
 
@@ -108,7 +121,6 @@ class WeChatPCMenuHandle(Handle):
     def click_feedback(self, message):
         """点击选择意见反馈"""
         self.mouse_left_click_position(60, 25, handle_id=self.handle_id)
-        print(message)
 
     def click_backup_and_recovery(self):
         """点击选择备份与恢复"""
@@ -163,7 +175,6 @@ class WeChatPCLogoutHandle(Handle):
         self.set_handle_foreground()
         self.show_handle()
         self.mouse_left_click_position(225, 190)
-        # self.mouse_left_click_position(self.left + 190, self.top + 225)
         self.check_logout()
 
     def cancel(self):
@@ -181,16 +192,6 @@ class WeChatPCLogoutHandle(Handle):
 
 
 if __name__ == '__main__':
-    # wx = WeChatPCLogoutHandle()
-    # wx.logout()
     wx = WeChatPCLoginHandle()
-    # wx.handle_full_screen_shot(image_file_name='login.png')
     wx.click_login()
-
     wx = WeChatPCHandle()
-    wx.get_menu_setting()
-    # wx.get_menu().click_feedback('hello wechat')
-    # wx_setting = WeChatSettingWndHandle()
-    # wx_setting.click_logout()
-    # confirm_dialog = WeChatPCLogoutHandle()
-    # confirm_dialog.cancel()
