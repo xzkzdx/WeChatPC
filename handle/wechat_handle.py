@@ -70,12 +70,17 @@ class WeChatPCHandle(Handle):
     def __init__(self):
         self.initial("WeChatMainWndForPC", "微信", *(None, None, 850, 560))
 
-    def message_list_move2top(self):
-        position_x = self.left + 305
-        position_y = self.top + 100
-        self.mouse_left_click_move(position_x, position_y, position_x, position_y + 100)
+    def scroll_move2top(self, place='left', ):
+        pass
 
-        # self.message_list_range_move(10000)
+    def scroll_move2button(self, place='left', ):
+        pass
+
+    def message_list_move2top(self):
+        # position_x = self.left + 180
+        # position_y = self.top + 100
+        # self.mouse_left_click_move(position_x, position_y, position_x, position_y + 100)
+        self.message_list_range_move(10000)
 
     def message_list_move2bottom(self):
         self.message_list_range_move(10000, move_up=False)
@@ -91,7 +96,7 @@ class WeChatPCHandle(Handle):
         position_y = self.top + 150
         for i in range(frequency):
             self.mouse_move_up(position_x, position_y) if move_up else self.mouse_move_down(position_x, position_y)
-        self.hidden_handle()
+        # self.hidden_handle()
 
     def get_menu_setting(self):
         self.show_handle()
@@ -108,6 +113,57 @@ class WeChatPCHandle(Handle):
         self.mouse_left_click_position(30, 535)
         menu_handle_id = self.get_handle_by_position(105, 470)
         self.mouse_left_click_position(60, 70, handle_id=menu_handle_id)
+
+    def click_friend(self, f_position):
+        self.mouse_left_click_position(170, f_position)
+
+    def input_content(self, msg_content):
+        """粘贴到消息发送框"""
+        # 存入粘贴板
+        self.set_text_to_clipboard(msg_content)
+        # 鼠标右键调 WeChatMainWndForPC 的 CMenuWnd 粘贴板
+        self.mouse_right_click_position(400, 500)
+        # 获取 CMenuWnd 粘贴板句柄
+        c_menu_wnd = CMenuWnd()
+        # 鼠标左击粘贴
+        c_menu_wnd.click_menu_wnd()
+        # click_combination_keys(hwd, win32con.VK_CONTROL, win32con.VK_RETURN)
+
+    def send_msg2dialog_box(self, msg_content):
+        """粘贴到消息发送框"""
+        self.mouse_left_click_position(450, 500)
+        # 存入粘贴板
+        self.set_text_to_clipboard(msg_content)
+        # 鼠标右键调 WeChatMainWndForPC 的 CMenuWnd 粘贴板
+        self.mouse_right_click_position(400, 500, 0.1)
+        # 获取 CMenuWnd 粘贴板句柄
+        c_menu_wnd = CMenuWnd()
+        # 鼠标左击粘贴
+        c_menu_wnd.click_menu_wnd()
+
+    def send_msg2friend(self, msg_content, f_position: int):
+        self.click_friend(f_position)
+        self.send_msg2dialog_box(msg_content)
+        self.mouse_left_click_position(780, 540)
+
+    def send_msg2top_friend(self, msg_content):
+        self.message_list_move2top()
+        self.click_friend(90)
+        self.send_msg2dialog_box(msg_content)
+        self.mouse_left_click_position(780, 540)
+
+    def click_sending_msg(self, m_position):
+        self.mouse_left_click_position(710, m_position)
+
+
+class CMenuWnd(Handle):
+    """微信对话框粘贴板"""
+
+    def __init__(self):
+        self.initial("CMenuWnd", "CMenuWnd", *(None, None, 76, 30))
+
+    def click_menu_wnd(self):
+        self.mouse_left_click_position(20, 10, 0.1)
 
 
 class WeChatPCMenuHandle(Handle):
@@ -142,6 +198,14 @@ class WeChatPCFeedbackHandle(Handle):
         self.show_handle()
         self.mouse_left_click_position(100, 100)
         self.ctrl_v()
+
+
+class WeChatWebViewWnd(Handle):
+    def __init__(self):
+        self.initial('WebViewWnd', '微信', *(None, None, 640, 740))
+
+    def close_web(self):
+        self.mouse_left_click_position(625, 15)
 
 
 class WeChatSettingWndHandle(Handle):
@@ -192,6 +256,8 @@ class WeChatPCLogoutHandle(Handle):
 
 
 if __name__ == '__main__':
-    wx = WeChatPCLoginHandle()
-    wx.click_login()
+    # wx = WeChatPCLoginHandle()
+    # wx.click_login()
     wx = WeChatPCHandle()
+    # wx.send_msg2top_friend('http://baidu.com')
+    wx.click_sending_msg(380)
