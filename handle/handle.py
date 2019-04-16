@@ -236,9 +236,9 @@ class Handle(object):
         long_position = win32api.MAKELONG(x_position, y_position)
         handle_id = handle_id if handle_id else self.handle
         # 点击左键
+        time.sleep(sleep_time)
         win32api.SendMessage(handle_id, win32con.WM_LBUTTONDOWN, win32con.MK_LBUTTON, long_position)
         win32api.SendMessage(handle_id, win32con.WM_LBUTTONUP, win32con.MK_LBUTTON, long_position)
-        time.sleep(sleep_time)
 
     def click_single_key(self, key):
         """模拟键盘独立按键"""

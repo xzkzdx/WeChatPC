@@ -155,15 +155,84 @@ class WeChatPCHandle(Handle):
     def click_sending_msg(self, m_position):
         self.mouse_left_click_position(710, m_position)
 
+    def close_web_view(self, wait_time: float):
+        web_view = WeChatWebViewWnd()
+        web_view.close_web(wait_time)
+
+
+class WeChatChatWnd(Handle):
+    """微信聊天句柄"""
+
+    def __init__(self, name: str):
+        self.initial("ChatWnd", name, *(None, None, 550, 640))
+
+    def send_msg(self, msg_content):
+        """发送消息"""
+        self.show_handle()
+        self.set_handle_foreground()
+        # 存入粘贴板
+        self.set_text_to_clipboard(msg_content)
+        # 鼠标右键调 WeChatMainWndForPC 的 CMenuWnd 粘贴板
+        self.mouse_right_click_position(200, 580, 0.1)
+        # 获取 CMenuWnd 粘贴板句柄
+        c_menu_wnd = CMenuWnd()
+        # 鼠标左击粘贴
+        c_menu_wnd.click_menu_wnd()
+        # 点击发送
+        self.mouse_left_click_position(self.width - 60, self.height - 20)
+
+    def click_last_sent_msg(self, m_position):
+        self.mouse_left_click_position(710, m_position)
+
+    def close_web_view(self, wait_time: float):
+        web_view = WeChatWebViewWnd()
+        web_view.close_web(wait_time)
+
+    def move2bottom(self):
+        self.message_list_range_move(10000, move_up=False)
+
+    def close_chat(self):
+        self.mouse_left_click_position(self.left - 15, 15)
+
+    def message_list_range_move(self, frequency: int, move_up: bool = True):
+        self.show_handle()
+        time.sleep(0.1)
+        position_x = self.left + 180
+        position_y = self.top + 150
+        for i in range(frequency):
+            self.mouse_move_up(position_x, position_y) if move_up else self.mouse_move_down(position_x, position_y)
+        # self.hidden_handle()
+
+    def delete_top_msg(self):
+        """删除顶条信息"""
+        self.show_handle()
+        self.set_handle_foreground()
+        self.mouse_right_click_position(self.width - 90, 120, 0.1)
+        time.sleep(1)
+        # 获取 CMenuWnd 粘贴板句柄
+        c_menu_wnd = CMenuWnd(None, None, 76, 196)
+        # 鼠标左击粘贴
+        c_menu_wnd.click_menu_wnd(t_position=180, sleep_time=0)
+        # time.sleep(1)
+        # 线程解决退出登录鼠标左键无法抬起的问题
+        while 1:
+            try:
+                delete_h = WeChatPCLogoutHandle()
+                delete_h.confirm()
+                break
+            except InvalidHandleError:
+                continue
+
 
 class CMenuWnd(Handle):
     """微信对话框粘贴板"""
 
-    def __init__(self):
-        self.initial("CMenuWnd", "CMenuWnd", *(None, None, 76, 30))
+    def __init__(self, *rect):
+        rect = rect if rect else (None, None, 76, 30,)
+        self.initial("CMenuWnd", "CMenuWnd", *rect)
 
-    def click_menu_wnd(self):
-        self.mouse_left_click_position(20, 10, 0.1)
+    def click_menu_wnd(self, t_position: int = 10, sleep_time: float = 0):
+        self.mouse_left_click_position(20, t_position, sleep_time)
 
 
 class WeChatPCMenuHandle(Handle):
@@ -202,10 +271,10 @@ class WeChatPCFeedbackHandle(Handle):
 
 class WeChatWebViewWnd(Handle):
     def __init__(self):
-        self.initial('WebViewWnd', '微信', *(None, None, 640, 740))
+        self.initial('CefWebViewWnd', '微信', *(None, None, 640, 740))
 
-    def close_web(self):
-        self.mouse_left_click_position(625, 15)
+    def close_web(self, wait_time: float = 0.1):
+        self.mouse_left_click_position(625, 15, wait_time)
 
 
 class WeChatSettingWndHandle(Handle):
@@ -234,11 +303,15 @@ class WeChatPCLogoutHandle(Handle):
     def __init__(self):
         self.initial("ConfirmDialog", "微信", *(None, None, 360, 224))
 
-    def logout(self):
-        """退出登陆"""
+    def confirm(self):
+        """确定"""
         self.set_handle_foreground()
         self.show_handle()
         self.mouse_left_click_position(225, 190)
+
+    def logout(self):
+        """退出登陆"""
+        self.confirm()
         self.check_logout()
 
     def cancel(self):
@@ -258,6 +331,12 @@ class WeChatPCLogoutHandle(Handle):
 if __name__ == '__main__':
     # wx = WeChatPCLoginHandle()
     # wx.click_login()
-    wx = WeChatPCHandle()
+    # wx = WeChatPCHandle()
     # wx.send_msg2top_friend('http://baidu.com')
-    wx.click_sending_msg(380)
+    # wx.click_sending_msg(380)
+    # wx.close_web_view(5)
+    # web_v = WeChatWebViewWnd()
+    # print(web_v.handle)
+    friend = WeChatChatWnd('清竹')
+    friend.send_msg('https://mp.weixin.qq.com/s/hWKlgb_dGn9EO6lbQ7esHw')
+    friend.delete_top_msg()
