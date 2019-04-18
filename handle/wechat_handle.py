@@ -10,6 +10,15 @@ from handle import Handle, InvalidHandleError
 from settings import LOGIN_UPDATE_TIME, ERROR_IGNORE_TIME
 
 
+class WeChatStartUp(Handle):
+
+    def __init__(self):
+        self.exe_name = 'WeChat.exe'
+
+    def startup(self):
+        self.startup_exe(self.exe_name)
+
+
 class WeChatPCLoginHandle(Handle):
     """WeChat登录句柄"""
 
@@ -212,7 +221,7 @@ class WeChatChatWnd(Handle):
         # 获取 CMenuWnd 粘贴板句柄
         c_menu_wnd = CMenuWnd(None, None, 76, 196)
         # 鼠标左击粘贴
-        c_menu_wnd.click_menu_wnd(t_position=180, sleep_time=0)
+        c_menu_wnd.click_menu_wnd(t_position=c_menu_wnd.height - 5, sleep_time=0)
         # time.sleep(1)
         # 线程解决退出登录鼠标左键无法抬起的问题
         while 1:
@@ -339,4 +348,4 @@ if __name__ == '__main__':
     # print(web_v.handle)
     friend = WeChatChatWnd('清竹')
     friend.send_msg('https://mp.weixin.qq.com/s/hWKlgb_dGn9EO6lbQ7esHw')
-    friend.delete_top_msg()
+    # friend.delete_top_msg()
