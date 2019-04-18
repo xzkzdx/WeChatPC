@@ -12,6 +12,6 @@ class WeChatAPI(object):
 
 
 if __name__ == '__main__':
-    WeChatStartUp().startup()
+    WeChatStartUp('C:\\Program Files (x86)\\Tencent\\WeChat\\WeChat.exe').startup()
     wechat = WeChatAPI()
     wechat.login_wechat()

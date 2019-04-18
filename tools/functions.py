@@ -24,6 +24,14 @@ def close_image(before_pids: dict, after_pids: dict):
                     proc.kill()
 
 
+def exists_exe(exe_name):
+    """判断可执行应用是否启动"""
+    for proc in psutil.process_iter():
+        if proc.name() == exe_name:
+            return True
+    return False
+
+
 def close_process(func):
     def __inner(*args, **kwargs):
         before_process = get_process()

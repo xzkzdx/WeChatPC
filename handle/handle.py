@@ -48,7 +48,7 @@ class Handle(object):
         self.change_position(self.default_left, self.default_top, self.default_width, self.default_height)
 
     def startup_exe(self, exe_name):
-        win32api.ShellExecute(0, 'open', exe_name, '', '', 0)
+        win32api.ShellExecute(0, 'open', exe_name, '', '', 1)
 
     def load_error(self, msg):
         raise InvalidHandleError(msg)
@@ -288,4 +288,4 @@ class Handle(object):
 
 
 if __name__ == '__main__':
-    win32api.ShellExecute(0, 'open', 'C:\Program Files (x86)\Tencent\WeChat\WeChat.exe', '', '', 0)
+    win32api.ShellExecute(0, 'open', '', '', '', 0)

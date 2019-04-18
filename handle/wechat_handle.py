@@ -8,15 +8,23 @@ import pywintypes
 
 from handle import Handle, InvalidHandleError
 from settings import LOGIN_UPDATE_TIME, ERROR_IGNORE_TIME
+from tools.functions import exists_exe
 
 
 class WeChatStartUp(Handle):
 
-    def __init__(self):
-        self.exe_name = 'WeChat.exe'
+    def __init__(self, exe_path: str = '', exe_name: str = 'WeChat.exe'):
+        """先尝试将exe名加入初始化，若系统找不到指定文件，请尝试初始化exe的绝对路径
+        如：exe_path = 'WeChat.exe'
+        或：exe_path = 'C:\\Program Files (x86)\\Tencent\\WeChat\\WeChat.exe' """
+        self.exe_path = exe_path
+        self.exe_name = exe_name
 
     def startup(self):
-        self.startup_exe(self.exe_name)
+        self.startup_exe(self.exe_path)
+        while 1:
+            if exists_exe(self.exe_name):
+                break
 
 
 class WeChatPCLoginHandle(Handle):
