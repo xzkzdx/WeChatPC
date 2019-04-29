@@ -13,11 +13,7 @@ import win32clipboard
 from win32api import GetSystemMetrics
 from settings import HANDLE_PIXEL_RATIO
 from tools.functions import path_join, get_img_pix_color, show_image, exists_path
-
-
-class InvalidHandleError(Exception):
-    def __init__(self, *args):
-        super().__init__(*args)
+from Exceptions.exceptions import InvalidHandleError
 
 
 class Handle(object):

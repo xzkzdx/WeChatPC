@@ -5,7 +5,7 @@
 
 
 class InvalidHandleError(Exception):
+    """无效的句柄异常"""
+
     def __init__(self, *args):
-        super().__init__(*args)
-
-
+        super(InvalidHandleError, self).__init__(*args)
