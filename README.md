@@ -8,14 +8,6 @@ pip install pywin32
 
 pip install PIL
 
-推荐git clone直接下载WeChatPC项目，部署到自己的程序中即可。
-
-在原有基础上，可以按需求进行功能扩充。
-
-目前仅支持Windows版，Mac端请配置对应句柄。
-
-欢迎爱好者fork共同开发。
-
 
 # example示例
 
